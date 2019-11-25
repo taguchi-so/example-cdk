@@ -25,7 +25,7 @@ export class ExampleCdkAPIEndpointStack extends cdk.Stack {
       context.hostedZoneId == ""
     ) {
       throw new Error(
-        `error: invalid context:${JSON.stringify({
+        `[${this.stackName}] error: invalid context ${JSON.stringify({
           env,
           revision,
           context

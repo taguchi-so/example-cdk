@@ -32,7 +32,7 @@ export class ExampleCdkLambdaCronStack extends cdk.Stack {
       context.privateSubnets.length == 0
     ) {
       throw new Error(
-        `error: invalid context:${JSON.stringify({
+        `[${this.stackName}] error: invalid context ${JSON.stringify({
           env,
           revision,
           context
