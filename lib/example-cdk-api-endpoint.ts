@@ -4,11 +4,15 @@ import * as apigateway from "@aws-cdk/aws-apigateway";
 import * as route53 from "@aws-cdk/aws-route53";
 import { Certificate } from "@aws-cdk/aws-certificatemanager";
 
-interface StageContext {
-  description: string;
+interface apiEndpointConfig {
   customDomainName: string;
   certificateArn: string;
   hostedZoneId: string;
+}
+
+interface StageContext {
+  description: string;
+  api: apiEndpointConfig;
 }
 
 export class ExampleCdkAPIEndpointStack extends cdk.Stack {
@@ -20,9 +24,9 @@ export class ExampleCdkAPIEndpointStack extends cdk.Stack {
     const revision: string = this.node.tryGetContext("revision") || "";
     const context: StageContext = this.node.tryGetContext(env) || {};
     if (
-      context.customDomainName == "" ||
-      context.certificateArn == "" ||
-      context.hostedZoneId == ""
+      context.api.customDomainName == "" ||
+      context.api.certificateArn == "" ||
+      context.api.hostedZoneId == ""
     ) {
       throw new Error(
         `[${this.stackName}] error: invalid context ${JSON.stringify({
@@ -52,9 +56,9 @@ export class ExampleCdkAPIEndpointStack extends cdk.Stack {
         certificate: Certificate.fromCertificateArn(
           this,
           `${this.stackName}-Certificate`,
-          context.certificateArn
+          context.api.certificateArn
         ),
-        domainName: context.customDomainName,
+        domainName: context.api.customDomainName,
         endpointType: apigateway.EndpointType.REGIONAL
       }
     );
@@ -68,9 +72,9 @@ export class ExampleCdkAPIEndpointStack extends cdk.Stack {
       zone: route53.HostedZone.fromHostedZoneId(
         this,
         `${this.stackName}-HostedZone`,
-        context.hostedZoneId
+        context.api.hostedZoneId
       ),
-      recordName: `${context.customDomainName}.`,
+      recordName: `${context.api.customDomainName}.`,
       target: route53.AddressRecordTarget.fromAlias({
         bind: (): route53.AliasRecordTargetConfig => ({
           dnsName: domainName.domainNameAliasDomainName,
