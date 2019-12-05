@@ -3,6 +3,7 @@ import "source-map-support/register";
 import * as cdk from "@aws-cdk/core";
 import { ExampleCdkAPIEndpointStack } from "../lib/example-cdk-api-endpoint";
 import { ExampleCdkLambdaCronStack } from "../lib/example-cdk-lamda-cron";
+import { ExampleCdkDocDBStack } from "../lib/example-cdk-docdb";
 
 // TODO: env,contextの整理
 const app = new cdk.App();
@@ -29,3 +30,10 @@ new ExampleCdkLambdaCronStack(
     }
   }
 );
+
+new ExampleCdkDocDBStack(app, `ExampleCdkDocDBStack-${env || "dev"}`, {
+  env: {
+    account: process.env.CDK_DEFAULT_ACCOUNT,
+    region: process.env.CDK_DEFAULT_REGION
+  }
+});

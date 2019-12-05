@@ -2,66 +2,40 @@
   "context": {
     "dev": {
       "description": "Development Example-CDK",
-      "customDomainName": "",
-      "certificateArn": "",
-      "hostedZoneId": "",
-      "bucketName": "",
-      "vpcName": "",
-      "privateSubnets": [
-        {
-          "subnetId": "",
-          "availabilityZone": "ap-northeast-1a",
-          "routeTableId": ""
-        },
-        {
-          "subnetId": "",
-          "availabilityZone": "ap-northeast-1c",
-          "routeTableId": ""
-        }
-      ],
-      "securityGroupID": ""
+      "api": {
+        "customDomainName": "",
+        "certificateArn": "",
+        "hostedZoneId": ""
+      },
+      "lambdaCron": {
+        "bucketName": "",
+        "vpcName": "",
+        "privateSubnets": [
+          {
+            "subnetId": "",
+            "availabilityZone": "ap-northeast-1a",
+            "routeTableId": ""
+          },
+          {
+            "subnetId": "",
+            "availabilityZone": "ap-northeast-1c",
+            "routeTableId": ""
+          }
+        ],
+        "securityGroupID": ""
+      },
+      "docdb": {
+        "dbSubnetGroupName": "",
+        "vpcSecurityGroupIds": [""],
+        "dbInstanceClass": "db.r5.large",
+        "availabilityZone": "ap-northeast-1c"
+      }
     },
     "stg": {
-      "description": "Staging Example-CDK",
-      "customDomainName": "",
-      "certificateArn": "",
-      "hostedZoneId": "",
-      "bucketName": "",
-      "vpcName": "",
-      "privateSubnets": [
-        {
-          "subnetId": "",
-          "availabilityZone": "ap-northeast-1a",
-          "routeTableId": ""
-        },
-        {
-          "subnetId": "",
-          "availabilityZone": "ap-northeast-1c",
-          "routeTableId": ""
-        }
-      ],
-      "securityGroupID": ""
+      "description": "Staging Example-CDK"
     },
     "prd": {
-      "description": "Product Example-CDK",
-      "customDomainName": "",
-      "certificateArn": "",
-      "hostedZoneId": "",
-      "bucketName": "",
-      "vpcName": "",
-      "privateSubnets": [
-        {
-          "subnetId": "",
-          "availabilityZone": "ap-northeast-1a",
-          "routeTableId": ""
-        },
-        {
-          "subnetId": "",
-          "availabilityZone": "ap-northeast-1c",
-          "routeTableId": ""
-        }
-      ],
-      "securityGroupID": ""
+      "description": "Product Example-CDK"
     }
   },
   "app": "npx ts-node bin/example-cdk.ts"

@@ -11,12 +11,14 @@ interface subnetCongfig {
   availabilityZone: string;
   routeTableId: string;
 }
-
-interface StageContext {
+interface lambdaCronConfig {
   bucketName: string;
   vpcName: string;
   privateSubnets: subnetCongfig[];
   securityGroupID: string;
+}
+interface StageContext {
+  lambdaCron: lambdaCronConfig;
 }
 export class ExampleCdkLambdaCronStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -27,12 +29,12 @@ export class ExampleCdkLambdaCronStack extends cdk.Stack {
     const context: StageContext = this.node.tryGetContext(env) || {};
 
     if (
-      context.bucketName == "" ||
-      context.vpcName == "" ||
-      context.privateSubnets.length == 0
+      context.lambdaCron.bucketName == "" ||
+      context.lambdaCron.vpcName == "" ||
+      context.lambdaCron.privateSubnets.length == 0
     ) {
       throw new Error(
-        `error: invalid context:${JSON.stringify({
+        `[${this.stackName}] error: invalid context ${JSON.stringify({
           env,
           revision,
           context
@@ -43,20 +45,24 @@ export class ExampleCdkLambdaCronStack extends cdk.Stack {
     // create s3 bucket
     const bucket = new s3.Bucket(this, "Bucket", {
       versioned: false,
-      bucketName: context.bucketName,
+      bucketName: context.lambdaCron.bucketName,
       publicReadAccess: false,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       removalPolicy: cdk.RemovalPolicy.DESTROY
     });
     const getPolicyStatement = new iam.PolicyStatement();
     getPolicyStatement.addActions("s3:GetObject");
-    getPolicyStatement.addResources(`arn:aws:s3:::${context.bucketName}/*`);
+    getPolicyStatement.addResources(
+      `arn:aws:s3:::${context.lambdaCron.bucketName}/*`
+    );
     getPolicyStatement.addServicePrincipal(`logs.${this.region}.amazonaws.com`);
     bucket.addToResourcePolicy(getPolicyStatement);
 
     const putPolicyStatement = new iam.PolicyStatement();
     putPolicyStatement.addActions("s3:PutObject");
-    putPolicyStatement.addResources(`arn:aws:s3:::${context.bucketName}/*`);
+    putPolicyStatement.addResources(
+      `arn:aws:s3:::${context.lambdaCron.bucketName}/*`
+    );
     putPolicyStatement.addServicePrincipal(`logs.${this.region}.amazonaws.com`);
     putPolicyStatement.addCondition("StringEquals", {
       "s3:x-amz-acl": "bucket-owner-full-control"
@@ -65,11 +71,11 @@ export class ExampleCdkLambdaCronStack extends cdk.Stack {
 
     // describe vpc and private subnet and security group
     const vpc = ec2.Vpc.fromLookup(this, "VPC", {
-      vpcId: context.vpcName
+      vpcId: context.lambdaCron.vpcName
     });
 
     const selectSubnets: ec2.SelectedSubnets = vpc.selectSubnets({
-      subnets: context.privateSubnets.map(privateSubnet => {
+      subnets: context.lambdaCron.privateSubnets.map(privateSubnet => {
         return ec2.Subnet.fromSubnetAttributes(this, privateSubnet.subnetId, {
           subnetId: privateSubnet.subnetId,
           availabilityZone: privateSubnet.availabilityZone,
@@ -81,7 +87,7 @@ export class ExampleCdkLambdaCronStack extends cdk.Stack {
     const securityGroup = ec2.SecurityGroup.fromSecurityGroupId(
       this,
       "SecurityGroup",
-      context.securityGroupID
+      context.lambdaCron.securityGroupID
     );
 
     // create lamda to selected vpc and private subnet
